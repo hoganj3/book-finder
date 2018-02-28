@@ -545,7 +545,7 @@ static void findBook(Mat bookshelf, int orientation){
     cvtColor(spine, greySpine, CV_BGR2GRAY);
     blur(greySpine, greySpine, cv::Size(3,3));
     
-    // Initialise variables
+    // Initialise variables for book search
     int shelfHeights = 0;
     double maxConfidence = 0;
     Point maxConfidenceLoc;
@@ -557,7 +557,7 @@ static void findBook(Mat bookshelf, int orientation){
     // Start clock to time search.
     unsigned long start  = clock();
     
-    // For each shelf dispatch a new thread to carry out a search for the book.
+    // Carry out a search for the book on each shelf
     for(int i = 0; i < numberOfShelves; i++){
         Mat greySpineLocal = greySpine.clone();
         
@@ -574,7 +574,8 @@ static void findBook(Mat bookshelf, int orientation){
                 maxConfidenceLoc.x = get<3>(match).x + get<1>(shelves[i]);
                 maxConfidenceLoc.y = get<3>(match).y + cropHeight;
                 shelfHeights = 0;
-                for(__block long k = i; k > 0; k--) shelfHeights += get<0>(shelves[k-1]).rows;
+                // Accumulate the heights of all shelves above this one, to get global y coordinate
+                for(long k = i; k > 0; k--) shelfHeights += get<0>(shelves[k-1]).rows;
             }
         } catch(Exception * e) {
             // If template matching raises an ecxeption, then image was not searchable
